@@ -1,4 +1,4 @@
-var noditor = require('noditor');
+var noditor = require('../noditor');
 var restify = require('restify'),
     fs = require('fs');
 
@@ -11,28 +11,32 @@ var https_options = {
 };
 
 
-// Restify
-/// If not running in the cloud - Heroku
-var http_server, https_server;
+// Only run HTTP in development.
+// Heroku and node-26 will use http_server.
+// Each will have a port number set for process.env.PORT.
+// node-26 must be started with a PORT param.
+var http_server = restify.createServer();
+var https_server;
 if(!process.env.PORT){
-  //http_server = restify.createServer();
+  // node-26 needs the cert
   https_server = restify.createServer(https_options);
 }
 else{
+  // Heroku has its own cert
   https_server = restify.createServer(); // Heroku
 }
 
 
 // CORS
-//http_server.use(restify.CORS());
+http_server.use(restify.CORS());
 https_server.use(restify.CORS());
 
-/*http_server.use(function(req, res, next) {
+http_server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   console.warn('Demo server > HTTP Request -',req.connection.remoteAddress, req.header['x-forwarded-for'], req.url);
   next();
-});*/
+});
 https_server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -41,25 +45,24 @@ https_server.use(function(req, res, next) {
 });
 
 // Static routes
-//http_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
-//  directory: 'static',
-//  default: 'index.html'
-//}));
+http_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
+  directory: 'static',
+  default: 'index.html'
+}));
 https_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
   directory: 'static',
   default: 'index.html'
 }));
 
 // Setup query parsers
-//http_server.use(restify.queryParser());
+http_server.use(restify.queryParser());
 https_server.use(restify.queryParser());
 
 // Add the Noditor endpoint
-//http_server.get('/noditor/:path/:passcode/:command', noditor.commands);
+http_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 https_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 
-// Start http service
-// If not running in the cloud - Heroku
+// Start http service only for developement
 if(!process.env.PORT){
   http_server.listen(8000, function () {
       http_server.name = "HTTP";
@@ -75,7 +78,13 @@ https_server.listen(port, function () {
 });
 
 // Noditor
-var options = {"stats_frequency":15, "stats_size":20, "quiet":false};
+var passcode = process.argv[2];
+console.log('++++++++++++++++++++++');
+console.log('index 0:', process.argv[0]);
+console.log('index 1:', process.argv[1]);
+console.log('index 2 > Passcode:', process.argv[2]);
+console.log('++++++++++++++++++++++');
+var options = {"stats_frequency":15, passcode: passcode,"stats_size":20, "quiet":false};
 noditor.start(options);
 
 
