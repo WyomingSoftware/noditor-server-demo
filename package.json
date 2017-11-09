@@ -1,0 +1,27 @@
+{
+  "name": "noditor-server-restify",
+  "version": "1.0.0",
+  "description": "Node.js Example App using Restify",
+  "main": "server.js",
+  "directories": {
+    "example": "examples",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "restify": "^4.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WyomingSoftware/noditor-server-restify.git"
+  },
+  "author": "Warren Anderson <warren@wyomingsoftware.com> (http://www.wyomingsoftware.com/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WyomingSoftware/noditor-server-restify/issues"
+  },
+  "homepage": "https://github.com/WyomingSoftware/noditor-server-restify#readme"
+}
