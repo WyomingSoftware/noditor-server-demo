@@ -83,6 +83,7 @@ console.log('++++++++++++++++++++++');
 console.log('index 0:', process.argv[0]);
 console.log('index 1:', process.argv[1]);
 console.log('index 2 > Passcode:', process.argv[2]);
+console.log('process.passcode:', process.passcode);
 console.log('++++++++++++++++++++++');
 var options = {"stats_frequency":15, passcode: passcode,"stats_size":20, "quiet":false};
 noditor.start(options);
