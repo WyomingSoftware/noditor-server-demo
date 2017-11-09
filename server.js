@@ -12,19 +12,27 @@ var https_options = {
 
 
 // Restify
-var http_server = restify.createServer();
-var https_server = restify.createServer(https_options);
+/// If not running in the cloud - Heroku
+var http_server, https_server;
+if(!process.env.PORT){
+  //http_server = restify.createServer();
+  https_server = restify.createServer(https_options);
+}
+else{
+  https_server = restify.createServer(); // Heroku
+}
+
 
 // CORS
-http_server.use(restify.CORS());
+//http_server.use(restify.CORS());
 https_server.use(restify.CORS());
 
-http_server.use(function(req, res, next) {
+/*http_server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   console.warn('Demo server > HTTP Request -',req.connection.remoteAddress, req.header['x-forwarded-for'], req.url);
   next();
-});
+});*/
 https_server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -33,21 +41,21 @@ https_server.use(function(req, res, next) {
 });
 
 // Static routes
-http_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
-  directory: 'static',
-  default: 'index.html'
-}));
+//http_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
+//  directory: 'static',
+//  default: 'index.html'
+//}));
 https_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
   directory: 'static',
   default: 'index.html'
 }));
 
 // Setup query parsers
-http_server.use(restify.queryParser());
+//http_server.use(restify.queryParser());
 https_server.use(restify.queryParser());
 
 // Add the Noditor endpoint
-http_server.get('/noditor/:path/:passcode/:command', noditor.commands);
+//http_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 https_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 
 // Start http service
