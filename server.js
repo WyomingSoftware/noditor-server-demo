@@ -1,4 +1,4 @@
-var noditor = require('../noditor');
+var noditor = require('noditor');
 var restify = require('restify'),
     fs = require('fs');
 
@@ -51,14 +51,17 @@ http_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 https_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 
 // Start http service
-http_server.listen(8000, function () {
-    http_server.name = "HTTP";
-    console.log('Demo server > '+http_server.name+' - '+http_server.url+' started @'+new Date());
-
-});
+// If not running in the cloud - Heroku
+if(!process.env.PORT){
+  http_server.listen(8000, function () {
+      http_server.name = "HTTP";
+      console.log('Demo server > '+http_server.name+' - '+http_server.url+' started @'+new Date());
+  });
+}
 
 // Start https service
-https_server.listen(8443, function () {
+var port = process.env.PORT || 8443;
+https_server.listen(port, function () {
   https_server.name = "HTTPS";
   console.log('Demo server > '+https_server.name+' - '+https_server.url+' started @'+new Date());
 });
