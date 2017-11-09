@@ -1,4 +1,4 @@
-var noditor = require('../noditor');
+var noditor = require('noditor');
 var restify = require('restify'),
     fs = require('fs');
 
