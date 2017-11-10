@@ -12,7 +12,7 @@ var https_options = {
 
 
 // Only run HTTP in development.
-// Heroku and node-26 will use http_server.
+// Heroku and node-26 will use https_server.
 // Each will have a port number set for process.env.PORT.
 // node-26 must be started with a PORT param.
 var http_server = restify.createServer();
@@ -62,7 +62,7 @@ https_server.use(restify.queryParser());
 http_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 https_server.get('/noditor/:path/:passcode/:command', noditor.commands);
 
-// Start http service only for developement
+// Start http_service only for developement
 if(!process.env.PORT){
   http_server.listen(8000, function () {
       http_server.name = "HTTP";
@@ -70,7 +70,7 @@ if(!process.env.PORT){
   });
 }
 
-// Start https service
+// Start https service for node-26 and Heroku
 var port = process.env.PORT || 8443;
 https_server.listen(port, function () {
   https_server.name = "HTTPS";
@@ -78,14 +78,9 @@ https_server.listen(port, function () {
 });
 
 // Noditor
-var passcode = process.argv[2];
-console.log('++++++++++++++++++++++');
-console.log('index 0:', process.argv[0]);
-console.log('index 1:', process.argv[1]);
-console.log('index 2 > Passcode:', process.argv[2]);
-console.log('process.passcode:', process.passcode);
-console.log('++++++++++++++++++++++');
-var options = {"stats_frequency":15, passcode: passcode,"stats_size":20, "quiet":false};
+// If no PASSCODE is passed then the PASSCODE will be null
+console.log('Demo server > started with passcode:', process.env.PASSCODE);
+var options = {"stats_frequency":15, passcode: process.env.PASSCODE,"stats_size":15, "quiet":false};
 noditor.start(options);
 
 
