@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "restify": "^4.3.0",
-    "noditor": "1.0.8"
+    "noditor": "1.0.9"
   },
   "devDependencies": {},
   "scripts": {
