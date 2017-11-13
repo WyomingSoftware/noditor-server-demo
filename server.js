@@ -1,6 +1,6 @@
-var noditor = require('noditor');
+var noditor = require('../noditor');
 var restify = require('restify'),
-    fs = require('fs');
+    fs = require('fs'), os = require('os');
 
 // https://stackoverflow.com/questions/12871565/how-to-create-pem-files-for-https-web-server
 var https_options = {
@@ -9,6 +9,7 @@ var https_options = {
   requestCert: false,
   rejectUnauthorized: false
 };
+var https_client = require('https');
 
 
 // Only run HTTP in development.
@@ -93,4 +94,28 @@ function loadMemory(size) {
   for (var i = 0; i<size; i++){
     arr.push(txt);
   }
+}
+
+// Ping index.html @HEROKU to keep it alive.
+console.log('os.hostname()', os.hostname());
+var pingHeroku = function(){
+  var options = {
+        host :  'noditor.herokuapp.com',
+        method : 'GET'
+    };
+  var getReq = https_client.request(options, function(res) {
+      res.on('data', function(data) {
+          console.log( 'Pinged Heroku > OK' );
+      });
+  });
+  //end the request
+  getReq.end();
+  getReq.on('error', function(err){
+      console.log("Pinged Heroku > ERROR:", err);
+  });
+};
+
+if( os.hostname() === 'node-26' ){ // This would be node-26 only
+  setInterval(function(){ pingHeroku(); }, 900000); // 15 minutes
+  pingHeroku();
 }
