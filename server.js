@@ -28,29 +28,30 @@ else{
 }
 
 
-// CORS
+// CORS Restify vrs: 4x
 http_server.use(restify.CORS());
 https_server.use(restify.CORS());
+
 
 http_server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  console.warn('Demo server > HTTP Request -',req.connection.remoteAddress, req.header['x-forwarded-for'], req.url);
+  //console.log('Demo server > HTTP Request -',req.connection.remoteAddress, req.header['x-forwarded-for'], req.url);
   next();
 });
 https_server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  console.warn('Demo server > HTTPS Request -',req.connection.remoteAddress, req.headers['x-forwarded-for'], req.url);
+  //console.log('Demo server > HTTPS Request -',req.connection.remoteAddress, req.headers['x-forwarded-for'], req.url);
   next();
 });
 
 // Static routes
-http_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
+http_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.plugins.serveStatic({
   directory: 'static',
   default: 'index.html'
 }));
-https_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.serveStatic({
+https_server.get(/(^\/$)|(\.(html|js|css|png|jpg)$)/, restify.plugins.serveStatic({
   directory: 'static',
   default: 'index.html'
 }));
@@ -85,37 +86,37 @@ var options = {"stats_frequency":15, passcode: process.env.PASSCODE,"stats_size"
 noditor.start(options);
 
 
-// Place a load on the server
-setInterval(function(){ loadMemory(Math.floor((Math.random() * 500000) + 20000)); }, 5000);
-var arr;
-var txt = 'This is meant to be a long string to place a load on the server memory footprint.';
-function loadMemory(size) {
-  arr = [];
-  for (var i = 0; i<size; i++){
-    arr.push(txt);
-  }
-}
+    // Place a load on the server
+    setInterval(function(){ loadMemory(Math.floor((Math.random() * 500000) + 20000)); }, 5000);
+    var arr;
+    var txt = 'This is meant to be a long string to place a load on the server memory footprint.';
+    function loadMemory(size) {
+      arr = [];
+      for (var i = 0; i<size; i++){
+        arr.push(txt);
+      }
+    }
 
-// Ping index.html @HEROKU to keep it alive.
-console.log('os.hostname()', os.hostname());
-var pingHeroku = function(){
-  var options = {
-        host :  'noditor.herokuapp.com',
-        method : 'GET'
-    };
-  var getReq = https_client.request(options, function(res) {
-      res.on('data', function(data) {
-          console.log( 'Pinged Heroku > OK' );
+    // Ping index.html @HEROKU to keep it alive.
+    console.log('Demo server > os.hostname', os.hostname());
+    var pingHeroku = function(){
+      var options = {
+            host :  'noditor.herokuapp.com',
+            method : 'GET'
+        };
+      var getReq = https_client.request(options, function(res) {
+          res.on('data', function(data) {
+              console.log( 'Pinged Heroku > OK' );
+          });
       });
-  });
-  //end the request
-  getReq.end();
-  getReq.on('error', function(err){
-      console.log("Pinged Heroku > ERROR:", err);
-  });
-};
+      //end the request
+      getReq.end();
+      getReq.on('error', function(err){
+          console.log("Pinged Heroku > ERROR:", err);
+      });
+    };
 
-if( os.hostname() === 'node-26' ){ // This would be node-26 only
-  setInterval(function(){ pingHeroku(); }, 900000); // 15 minutes
-  pingHeroku();
-}
+    if( os.hostname() === 'node-26' ){ // This would be node-26 only
+      setInterval(function(){ pingHeroku(); }, 900000); // 15 minutes
+      pingHeroku();
+    }
